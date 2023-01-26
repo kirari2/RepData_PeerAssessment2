@@ -32,6 +32,7 @@ p2 <- df %>%
                 labs(x = "",
                      y = "",
                      title = "Top 5 Causes of Weather Injuries in US,\n1950–Nov 2011")
+# Combine the two figures in to one
 p1 + p2
         
 # Part 2
@@ -40,7 +41,7 @@ summary(df$PROPDMG)
 unique(df$PROPDMGEXP)
 
 df2 <- df
-# Replace nil values with "+" to prevent dplyr::recode generating warning message of "Problem while computing `crop_dmg_exp = recode(...)`.
+# Replace empty values ("") with "+" to prevent dplyr::recode generating warning message of "Problem while computing `crop_dmg_exp = recode(...)`.
 # Unreplaced values treated as NA as `.x` is not compatible.""
 df2$PROPDMGEXP[df2$PROPDMGEXP == ""] <- "+"
 df2 <- df2 %>% 
@@ -120,4 +121,5 @@ p5 <- df2 %>%
                 labs(x = "",
                      y = "Damage (US dollars)",
                      title = "Top 5 Causes of Property & Crop Damage in US, 1950–Nov 2011")
+# Combine three figures into one
 p3 + p4 + p5
