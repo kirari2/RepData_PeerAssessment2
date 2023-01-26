@@ -40,9 +40,11 @@ summary(df$PROPDMG)
 unique(df$PROPDMGEXP)
 
 df2 <- df
+# Replace nil values with "+" to prevent dplyr::recode generating warning message of "Problem while computing `crop_dmg_exp = recode(...)`.
+# Unreplaced values treated as NA as `.x` is not compatible.""
 df2$PROPDMGEXP[df2$PROPDMGEXP == ""] <- "+"
 df2 <- df2 %>% 
-        mutate(dmg_exp = recode(PROPDMGEXP,
+        mutate(prop_dmg_exp = recode(PROPDMGEXP,
                                 K = 1e+03,
                                 M = 1e+06,
                                 B = 1e+09,
@@ -61,7 +63,7 @@ df2 <- df2 %>%
                                 `-` = 0,
                                 `1` = 1e+01,
                                 `8` = 1e+08))
-df2$prop_dmg_norm <- df2$PROPDMG * df2$dmg_exp
+df2$prop_dmg_norm <- df2$PROPDMG * df2$prop_dmg_exp
 
 p3 <- df2 %>% 
         group_by(EVTYPE) %>% 
