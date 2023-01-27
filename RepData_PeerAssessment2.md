@@ -6,9 +6,7 @@ output:
 date: '2023-01-27'
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+
 
 ## Title
 Assessing the Most Severe Weather Events in Terms of Population Health and Economic Damage: Studying the US NOAA Storm Data, 1950–2011
@@ -24,36 +22,122 @@ The aim is to find out which types of weather events caused are most harmful wit
 The data for this assignment come from the course web site: [Storm data](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2).
 
 1. Download raw data
-```{r Download raw data, cache = TRUE, cache.path="cache/"}
+
+```r
 url <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
 download.file(url, "./df.bz2")
 ```
 
 2. Read raw data
-```{r Read raw data, cache=TRUE, cache.path="cache/"}
+
+```r
 library(data.table)
 df <- fread("./df.bz2")
 ```
 
 3. Explore the raw data set
-```{r Explore the raw data set}
+
+```r
 # Features of the whole data set
 str(df)
+```
 
+```
+## Classes 'data.table' and 'data.frame':	902297 obs. of  37 variables:
+##  $ STATE__   : num  1 1 1 1 1 1 1 1 1 1 ...
+##  $ BGN_DATE  : chr  "4/18/1950 0:00:00" "4/18/1950 0:00:00" "2/20/1951 0:00:00" "6/8/1951 0:00:00" ...
+##  $ BGN_TIME  : chr  "0130" "0145" "1600" "0900" ...
+##  $ TIME_ZONE : chr  "CST" "CST" "CST" "CST" ...
+##  $ COUNTY    : num  97 3 57 89 43 77 9 123 125 57 ...
+##  $ COUNTYNAME: chr  "MOBILE" "BALDWIN" "FAYETTE" "MADISON" ...
+##  $ STATE     : chr  "AL" "AL" "AL" "AL" ...
+##  $ EVTYPE    : chr  "TORNADO" "TORNADO" "TORNADO" "TORNADO" ...
+##  $ BGN_RANGE : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ BGN_AZI   : chr  "" "" "" "" ...
+##  $ BGN_LOCATI: chr  "" "" "" "" ...
+##  $ END_DATE  : chr  "" "" "" "" ...
+##  $ END_TIME  : chr  "" "" "" "" ...
+##  $ COUNTY_END: num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ COUNTYENDN: logi  NA NA NA NA NA NA ...
+##  $ END_RANGE : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ END_AZI   : chr  "" "" "" "" ...
+##  $ END_LOCATI: chr  "" "" "" "" ...
+##  $ LENGTH    : num  14 2 0.1 0 0 1.5 1.5 0 3.3 2.3 ...
+##  $ WIDTH     : num  100 150 123 100 150 177 33 33 100 100 ...
+##  $ F         : int  3 2 2 2 2 2 2 1 3 3 ...
+##  $ MAG       : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ FATALITIES: num  0 0 0 0 0 0 0 0 1 0 ...
+##  $ INJURIES  : num  15 0 2 2 2 6 1 0 14 0 ...
+##  $ PROPDMG   : num  25 2.5 25 2.5 2.5 2.5 2.5 2.5 25 25 ...
+##  $ PROPDMGEXP: chr  "K" "K" "K" "K" ...
+##  $ CROPDMG   : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ CROPDMGEXP: chr  "" "" "" "" ...
+##  $ WFO       : chr  "" "" "" "" ...
+##  $ STATEOFFIC: chr  "" "" "" "" ...
+##  $ ZONENAMES : chr  "" "" "" "" ...
+##  $ LATITUDE  : num  3040 3042 3340 3458 3412 ...
+##  $ LONGITUDE : num  8812 8755 8742 8626 8642 ...
+##  $ LATITUDE_E: num  3051 0 0 0 0 ...
+##  $ LONGITUDE_: num  8806 0 0 0 0 ...
+##  $ REMARKS   : chr  "" "" "" "" ...
+##  $ REFNUM    : num  1 2 3 4 5 6 7 8 9 10 ...
+##  - attr(*, ".internal.selfref")=<externalptr>
+```
+
+```r
 # Number of weather events included
 length(unique(df$EVTYPE))
+```
 
+```
+## [1] 985
+```
+
+```r
 # Statistics of weather-related fatalities
 summary(df$FATALITIES)
+```
 
+```
+##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+##   0.0000   0.0000   0.0000   0.0168   0.0000 583.0000
+```
+
+```r
 # Statistics of weather-related injuries
 summary(df$INJURIES)
 ```
 
+```
+##      Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+##    0.0000    0.0000    0.0000    0.1557    0.0000 1700.0000
+```
+
 4. Address question 1: Across the United States, which types of events (as indicated in the `EVTYPE` variable) are most harmful with respect to population health?
 
-```{r Explore the most harmful weather events with respect to population health}
+
+```r
 library(dplyr)
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+```
+
+```
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
 library(ggplot2)
 library(patchwork)
 
@@ -72,7 +156,13 @@ p1 <- df %>%
                 labs(x = "",
                      y = "Count",
                      title = "Top 5 Causes of Weather\nFatalities in US, 1950–Nov 2011")
+```
 
+```
+## Selecting by total_f
+```
+
+```r
 # Data extraction and rank the top 5 weather events causing most injuries
 p2 <- df %>% 
         group_by(EVTYPE) %>% 
@@ -90,12 +180,31 @@ p2 <- df %>%
                  title = "Top 5 Causes of Weather\nInjuries in US, 1950–Nov 2011")
 ```
 
+```
+## Selecting by total_i
+```
+
 4. Address question 2: Across the United States, which types of events have the greatest economic consequences?
-```{r Explore which types of events have the greatest economic consequences}
+
+```r
 # Features of property damage data
 summary(df$PROPDMG)
-unique(df$PROPDMGEXP)
+```
 
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##    0.00    0.00    0.00   12.06    0.50 5000.00
+```
+
+```r
+unique(df$PROPDMGEXP)
+```
+
+```
+##  [1] "K" "M" ""  "B" "m" "+" "0" "5" "6" "?" "4" "2" "3" "h" "7" "H" "-" "1" "8"
+```
+
+```r
 # Clone an identical data set
 df2 <- df
 # Replace empty values
@@ -138,11 +247,31 @@ p3 <- df2 %>%
         labs(x = "",
              y = "Damage (US dollars)",
              title = "Weather-related\nProperty Damage\nin US, 1950\n–Nov 2011")
+```
 
+```
+## Selecting by total_p
+```
+
+```r
 # Features of crop damage data
 summary(df2$CROPDMG)
-unique(df2$CROPDMGEXP)
+```
 
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   0.000   0.000   0.000   1.527   0.000 990.000
+```
+
+```r
+unique(df2$CROPDMGEXP)
+```
+
+```
+## [1] ""  "M" "K" "m" "B" "?" "0" "k" "2"
+```
+
+```r
 # Replace empty values
 df2$CROPDMGEXP[df2$CROPDMGEXP == ""] <- "?"
 # Transform crop damage to the same unit
@@ -173,7 +302,13 @@ p4 <- df2 %>%
         labs(x = "",
              y = "Damage (US dollars)",
              title = "Weather-related\nCrop Damage\nin US, 1950\n–Nov 2011")
+```
 
+```
+## Selecting by total_c
+```
+
+```r
 df2$all_dmg <- df2$prop_dmg_norm + df2$crop_dmg_norm
 p5 <- df2 %>% 
     group_by(EVTYPE) %>% 
@@ -189,18 +324,28 @@ p5 <- df2 %>%
          title = "Total Weather\n-related Damage\nin US, 1950\n–Nov 2011")
 ```
 
+```
+## Selecting by total
+```
+
 ## Results
-```{r Result for question 1}
+
+```r
 # Combine two bar plots into one
 p1 + p2
 ```
 
+![](RepData_PeerAssessment2_files/figure-html/Result for question 1-1.png)<!-- -->
+
 During the period of 1950 to Nov 2011, tornado was the most harmful weather events causing largest number of fatalities and injuries in the US. It is followed by excessive heat (in terms of fatalities) and TSTM (thunderstorm) wind (in terms of injuries).
 
-```{r Results for question 2}
+
+```r
 # Combine three bar plots into one
 p3 + p4 + p5
 ```
+
+![](RepData_PeerAssessment2_files/figure-html/Results for question 2-1.png)<!-- -->
 
 During the period of 1950 to Nov 2011, flood has caused the greatest economic consequence (in terms of total property and crop damage) in the US. It is also the single weather event that caused highest property damage. Considering crop damage, drought had the biggest share.
 
