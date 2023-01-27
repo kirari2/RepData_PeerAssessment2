@@ -25,7 +25,7 @@ The data for this assignment come from the course web site: [Storm data](https:/
 
 ```r
 url <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
-download.file(url, "./df.bz2")
+download.file(url, "./df.bz2", method = "curl")
 ```
 
 2. Read raw data
@@ -123,6 +123,12 @@ library(dplyr)
 ```
 ## 
 ## Attaching package: 'dplyr'
+```
+
+```
+## The following objects are masked from 'package:data.table':
+## 
+##     between, first, last
 ```
 
 ```

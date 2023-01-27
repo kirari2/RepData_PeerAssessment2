@@ -1,13 +1,17 @@
-# Download and read raw data
+# Download raw data
 url <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
-download.file(url, "./df.bz2")
+download.file(url, "./df.bz2", method = "curl")
+
+# Read raw data
 library(data.table)
 df <- fread("./df.bz2")
 
-# Part 1
+# Assess weather-related population health damage
 library(dplyr)
 library(ggplot2)
 library(patchwork)
+
+# Generate and save plot 1
 p1 <- df %>% 
         group_by(EVTYPE) %>% 
         summarise(total_f = sum(FATALITIES)) %>% 
@@ -20,6 +24,8 @@ p1 <- df %>%
                 labs(x = "",
                      y = "Count",
                      title = "Top 5 Causes of Weather Fatalities in US,\n1950–Nov 2011")
+
+# Generate and save plot 2
 p2 <- df %>% 
         group_by(EVTYPE) %>% 
         summarise(total_i = sum(INJURIES)) %>% 
@@ -32,11 +38,11 @@ p2 <- df %>%
                 labs(x = "",
                      y = "",
                      title = "Top 5 Causes of Weather Injuries in US,\n1950–Nov 2011")
-# Combine the two figures in to one
+
+# Combine plot 1 and plot 2 in to one
 p1 + p2
-        
-# Part 2
-# Calculate total property damage
+
+# Assess weather-related econmic damage
 summary(df$PROPDMG)
 unique(df$PROPDMGEXP)
 
@@ -64,8 +70,10 @@ df2 <- df2 %>%
                                 `-` = 0,
                                 `1` = 1e+01,
                                 `8` = 1e+08))
+# Calculate total property damage
 df2$prop_dmg_norm <- df2$PROPDMG * df2$prop_dmg_exp
 
+# Generate and save plot 3
 p3 <- df2 %>% 
         group_by(EVTYPE) %>% 
         summarise(total_p = sum(prop_dmg_norm)) %>% 
@@ -79,9 +87,9 @@ p3 <- df2 %>%
                      y = "Damage (US dollars)",
                      title = "Top 5 Causes of Weather-related\n Property Damage in US, 1950–Nov 2011")
 
-# Calculate total crop damage
 summary(df2$CROPDMG)
 unique(df2$CROPDMGEXP)
+# Replace empty values ("") with "?"
 df2$CROPDMGEXP[df2$CROPDMGEXP == ""] <- "?"
 df2 <- df2 %>% 
         mutate(crop_dmg_exp = recode(CROPDMGEXP,
@@ -93,8 +101,10 @@ df2 <- df2 %>%
                                 `0` = 1,
                                 k = 1e+03,
                                 `2` = 1e+02))
+# Calculate total crop damage
 df2$crop_dmg_norm <- df2$CROPDMG * df2$crop_dmg_exp 
 
+# Generate and save plot 4
 p4 <- df2 %>% 
         group_by(EVTYPE) %>% 
         summarise(total_c = sum(crop_dmg_norm)) %>% 
@@ -108,7 +118,10 @@ p4 <- df2 %>%
                      y = "Damage (US dollars)",
                      title = "Top 5 Causes of Weather-related Crop Damage in US, 1950–Nov 2011")
 
+# Calculate total econmic damage
 df2$all_dmg <- df2$prop_dmg_norm + df2$crop_dmg_norm
+
+# Generate and save the plot 5
 p5 <- df2 %>% 
         group_by(EVTYPE) %>% 
         summarise(total = sum(all_dmg)) %>% 
@@ -121,5 +134,6 @@ p5 <- df2 %>%
                 labs(x = "",
                      y = "Damage (US dollars)",
                      title = "Top 5 Causes of Property & Crop Damage in US, 1950–Nov 2011")
+
 # Combine three figures into one
 p3 + p4 + p5
